@@ -1,0 +1,89 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: lab5
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+functions:
+  postOrganization:
+    handler: handler.postOrganization
+    events:
+      - httpApi:
+          method: POST
+          path: /organizations
+  postUser:
+    handler: handler.postUser
+    events:
+      - httpApi:
+          method: POST
+          path: /organizations/{orgId}/users
+
+custom:
+  serverless-dynamodb:
+    start:
+      port: 8000
+      region: localhost
+      docker: false
+      inMemory: false
+      dbPath: ./db
+      migrate: true
+
+resources: # CloudFormation template syntax
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: orgId
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: orgId-email-index
+            KeySchema:
+              - AttributeName: orgId
+                KeyType: HASH
+              - AttributeName: email
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    organizationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: organizationsTable
+        AttributeDefinitions:
+          - AttributeName: orgId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orgId
+            KeyType: HASH
+
+plugins:
+  - serverless-dynamodb
+  - serverless-offline

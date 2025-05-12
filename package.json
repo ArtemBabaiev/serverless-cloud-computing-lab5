@@ -1,0 +1,21 @@
+{
+  "devDependencies": {
+    "serverless-offline": "^13.9.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "serverless-dynamodb": "^0.2.56",
+    "uuid": "^11.1.0",
+    "yup": "^1.6.1"
+  },
+  "name": "scc-lab5",
+  "version": "1.0.0",
+  "main": "handler.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
