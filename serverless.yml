@@ -37,15 +37,25 @@ functions:
       - httpApi:
           method: POST
           path: /organizations/{orgId}/users
-
+  putOrganization:
+    handler: handler.putOrganization
+    events:
+      - httpApi:
+          method: PUT
+          path: /organizations
+  putUser:
+    handler: handler.putUser
+    events:
+      - httpApi:
+          method: PUT
+          path: /organizations/{orgId}/users
 custom:
   serverless-dynamodb:
     start:
       port: 8000
-      region: localhost
+      region: eu-west-1
       docker: false
-      inMemory: false
-      dbPath: ./db
+      inMemory: true
       migrate: true
 
 resources: # CloudFormation template syntax
@@ -57,20 +67,16 @@ resources: # CloudFormation template syntax
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: orgId
-            AttributeType: S
           - AttributeName: email
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: orgId-email-index
+          - IndexName: email-index
             KeySchema:
-              - AttributeName: orgId
-                KeyType: HASH
               - AttributeName: email
-                KeyType: RANGE
+                KeyType: HASH
             Projection:
               ProjectionType: ALL
     organizationsTable:
@@ -80,9 +86,18 @@ resources: # CloudFormation template syntax
         AttributeDefinitions:
           - AttributeName: orgId
             AttributeType: S
+          - AttributeName: name
+            AttributeType: S
         KeySchema:
           - AttributeName: orgId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: name-index
+            KeySchema:
+              - AttributeName: name
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
 
 plugins:
   - serverless-dynamodb
